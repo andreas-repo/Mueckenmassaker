@@ -18,6 +18,9 @@ import java.util.Random;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, Runnable {
 
     private static final long MAX_AGE_MS = 2000;
+    public static final int DELAY_MILLIS = 1000;
+    public static final int MULTIPLICATION_FACTOR = 10;
+    public static final int TIME_SLICE = 600;
 
     private boolean gameRunning;
     private int round;
@@ -51,11 +54,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startRound() {
         round++;
-        mosquitos = round * 10;
+        mosquitos = round * MULTIPLICATION_FACTOR;
         caughtMosquitos = 0;
-        time = 60;
+        time = TIME_SLICE;
         refreshDisplay();
-        handler.postDelayed(this, 1000);
+        handler.postDelayed(this, DELAY_MILLIS);
     }
 
     private void refreshDisplay() {
@@ -66,7 +69,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         TextView textViewHits = (TextView) findViewById(R.id.hits_text);
         textViewHits.setText(Integer.toString(caughtMosquitos));
         TextView textViewTime = (TextView) findViewById(R.id.time_text);
-        textViewTime.setText(Integer.toString(time));
+        textViewTime.setText(Integer.toString(time/(1000/DELAY_MILLIS)));
 
         FrameLayout frameLayoutHits = (FrameLayout) findViewById(R.id.bar_hits);
         FrameLayout frameLayoutTime = (FrameLayout) findViewById(R.id.bar_time);
@@ -78,19 +81,20 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private void countdownTime() {
         time--;
-        float randomNumber = random.nextFloat();
-        double probability = mosquitos * 1.5;
-        if (probability > 1) {
-            spawnOneMosquito();
-            if (randomNumber < probability - 1) {
+        if ( time % (1000 / DELAY_MILLIS) == 0) {
+            float randomNumber = random.nextFloat();
+            double probability = mosquitos * 1.5;
+            if (probability > 1) {
                 spawnOneMosquito();
-            }
-        } else {
-            if (randomNumber < probability) {
-                spawnOneMosquito();
+                if (randomNumber < probability - 1) {
+                    spawnOneMosquito();
+                }
+            } else {
+                if (randomNumber < probability) {
+                    spawnOneMosquito();
+                }
             }
         }
-
         removeMosquitos();
         refreshDisplay();
         if (!checkGameover()) {
