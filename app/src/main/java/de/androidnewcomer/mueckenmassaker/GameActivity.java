@@ -31,35 +31,46 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private int caughtMosquitos;
     private int time;
     private int points;
-
     private float scale;
-    private Random random = new Random();
-    private ViewGroup gameArea;
 
+    private ViewGroup gameArea;
+    private Random random = new Random();
     private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        //get the pixel density of the mobile phone
         scale = getResources().getDisplayMetrics().density;
+        //initialize/get the game area
         gameArea = (ViewGroup) findViewById(R.id.gameAreaFrameLayout);
+        //execute the startGame() method
         startGame();
     }
 
+    //startGame() method
     private void startGame() {
+        //set the boolean gameRunning variable to true
         gameRunning = true;
+        //set the round variable to "0"
         round = 0;
+        //set the points variable to "0"
         points = 0;
+        //execute the startRound() method
         startRound();
-
     }
 
     private void startRound() {
+        //increment the round varialbe by "1"
         round++;
+        //set the amount of mosquitos to the value of  "round * MULTIPLICATION_FACTOR"
         mosquitos = round * MULTIPLICATION_FACTOR;
+        //set the amount of caught mosquitos to "0"
         caughtMosquitos = 0;
+        //set the time of the round
         time = TIME_SLICE;
+        //execute refreshDisplay() method
         refreshDisplay();
         handler.postDelayed(this, DELAY_MILLIS);
         //get the id from  the resource called "background" + number from the drawable folder
@@ -72,6 +83,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    //method to refresh the contents of the display
     private void refreshDisplay() {
         TextView textViewPoints = (TextView) findViewById(R.id.pointsText);
         textViewPoints.setText(Integer.toString(points));
@@ -90,8 +102,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         layoutParamsTime.width = Math.round(scale * time * 300 / 60);
     }
 
+    //method to count down the time and spawn mosquitos
     private void countdownTime() {
+        //decrement the time by "1"
         time--;
+        //checks if the modulo results into a "0"
         if ( time % (1000 / DELAY_MILLIS) == 0) {
             float randomNumber = random.nextFloat();
             double probability = mosquitos * 1.5;
@@ -106,83 +121,128 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         }
+        //execute removeMosquitos() method
         removeMosquitos();
+        //execute refreshDisplay() method
         refreshDisplay();
+        //checks if the game is over...
         if (!checkGameover()) {
+            //..checks if the round is over
             if(!checkRoundEnding()) {
                 handler.postDelayed(this, 1000);
             }
         }
     }
 
+    //method to check if it's game over
     private boolean checkGameover() {
+        //if the time is "0" or if enough mosquitos have been caught...
         if (time == 0 && caughtMosquitos < mosquitos) {
+            //...then the gameover() method is been executed...
             gameover();
+            //...and returns true
             return true;
         }
+        //...else if returns false
         return false;
     }
 
+    //method to check if the round is ending
     private boolean checkRoundEnding() {
+        //if the amount of caught mosquitos is bigger than the remaining mosquitos then...
         if (caughtMosquitos >= mosquitos) {
+            //...it starts a new round...
             startRound();
+            //...and returns true
             return true;
         }
+        //...else it returns false
         return false;
     }
 
+    //method to spawn a new mosquito
     private void spawnOneMosquito() {
-        int heigth = gameArea.getHeight();
+        //gets the height of the game area
+        int height = gameArea.getHeight();
+        //gets the width of the game area
         int width = gameArea.getWidth();
-        int mosquitoHeigth = Math.round(scale * 50);
+
+        int mosquitoHeight = Math.round(scale * 50);
         int mosquitoWidth = Math.round(scale * 42);
 
+        //creates a random value to place the mosquito inside the game area
         int left = random.nextInt(width - mosquitoWidth);
-        int top = random.nextInt(heigth - mosquitoHeigth);
+        int top = random.nextInt(height - mosquitoHeight);
 
+        //creates a image view for the mosquito
         ImageView spawnedMosquito = new ImageView(this);
+        //set the mosquito image for the image view
         spawnedMosquito.setImageResource(R.drawable.muecke);
+        //add a onClickListener for the mosquito
         spawnedMosquito.setOnClickListener(this);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mosquitoWidth, mosquitoHeigth);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mosquitoWidth, mosquitoHeight);
+        //place the mosquito via the randomly generated values
         params.leftMargin = left;
         params.topMargin = top;
         params.gravity = Gravity.TOP + Gravity.LEFT;
 
+        //add the mosquito image view to the game area
         gameArea.addView(spawnedMosquito, params);
+        //set a tag for the newly generated mosquito which contains a birth date for the mosquito to  later determine if the mosquito must be removed
         spawnedMosquito.setTag(R.id.birthdate, new Date());
     }
 
+    //method to remove mosquitos
     private void removeMosquitos() {
         int number = 0;
+        //while the number variable is smaller than the amount of children...
         while ( number < gameArea.getChildCount()) {
+            //...get the child from the game area...
             ImageView mosquito = (ImageView) gameArea.getChildAt(number);
+            //read and save the birthdate of the child as a variable...
             Date birthDate = (Date) mosquito.getTag(R.id.birthdate);
+            //calculate of the age...
             long age = (new Date()).getTime() - birthDate.getTime();
+            //...and if´the age is bigger than the maximum age...
             if ( age > MAX_AGE_MS) {
-                gameArea.removeView(mosquito);
+                //...then remove the mosquito from the game area
+                gameArea.removeView(mosquito); //incrementation is not needed because the next mosquito slides to this index number cuz of the removeView method
             } else {
+                //...else it increments the number by '1'
                 number++;
             }
         }
     }
 
+    //method for game over
     public void gameover() {
+        //create a new dialog for the game over message
         Dialog gameoverDialog = new Dialog(this, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        //set the dialog's content view to the gameover.xml
         gameoverDialog.setContentView(R.layout.gameover);
+        //set the dialog to visible/show
         gameoverDialog.show();
+        //set the gameRunning variable to false;
         gameRunning = false;
     }
 
+    //the onclick listener for the catching a mosquito via touchscreen
     @Override
     public void onClick(View view) {
+        //increment the caughtMosquito variable
         caughtMosquitos++;
+        //add 100 points to the points variable
         points = points + 100;
+        //refresh the display
         refreshDisplay();
+        //remove the mosquito from the game area
         gameArea.removeView(view);
     }
 
+    //thread run
     @Override
     public void run() {
+        //execute the countdownTime() method
         countdownTime();
     }
 }
