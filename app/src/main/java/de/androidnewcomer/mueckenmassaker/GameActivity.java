@@ -1,8 +1,10 @@
 package de.androidnewcomer.mueckenmassaker;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Dialog;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Date;
@@ -59,6 +62,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         time = TIME_SLICE;
         refreshDisplay();
         handler.postDelayed(this, DELAY_MILLIS);
+        //get the id from  the resource called "background" + number from the drawable folder
+        int number = random.nextInt(4);
+        int id = getResources().getIdentifier("background"+ number, "drawable", this.getPackageName());
+        if (id > 0) {
+            //Use the id to change the game background
+            ConstraintLayout constraintLayout = (ConstraintLayout) findViewById(R.id.background);
+            constraintLayout.setBackground(getDrawable(id));
+        }
     }
 
     private void refreshDisplay() {
@@ -102,7 +113,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
                 handler.postDelayed(this, 1000);
             }
         }
-
     }
 
     private boolean checkGameover() {
