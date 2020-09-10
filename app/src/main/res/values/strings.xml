@@ -2,4 +2,5 @@
     <string name="app_name">Mueckenmassaker</string>
     <string name="heading1">Willkommen beim Mückenmassaker!</string>
     <string name="startButton">Start</string>
+    <string name="gameoverText">GAME OVER!</string>
 </resources>

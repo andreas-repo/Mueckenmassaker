@@ -2,7 +2,9 @@ package de.androidnewcomer.mueckenmassaker;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +15,11 @@ import android.widget.TextView;
 import java.util.Date;
 import java.util.Random;
 
-public class GameActivity extends AppCompatActivity implements View.OnClickListener {
+public class GameActivity extends AppCompatActivity implements View.OnClickListener, Runnable {
 
     private static final long MAX_AGE_MS = 2000;
 
-    private boolean gameRunning = false;
+    private boolean gameRunning;
     private int round;
     private int mosquitos;
     private int caughtMosquitos;
@@ -28,12 +30,15 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private Random random = new Random();
     private ViewGroup gameArea;
 
+    private Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
         scale = getResources().getDisplayMetrics().density;
         gameArea = (ViewGroup) findViewById(R.id.gameAreaFrameLayout);
+        startGame();
     }
 
     private void startGame() {
@@ -41,6 +46,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         round = 0;
         points = 0;
         startRound();
+
     }
 
     private void startRound() {
@@ -49,6 +55,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         caughtMosquitos = 0;
         time = 60;
         refreshDisplay();
+        handler.postDelayed(this, 1000);
     }
 
     private void refreshDisplay() {
@@ -87,13 +94,16 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         removeMosquitos();
         refreshDisplay();
         if (!checkGameover()) {
-            checkRoundEnding();
+            if(!checkRoundEnding()) {
+                handler.postDelayed(this, 1000);
+            }
         }
+
     }
 
     private boolean checkGameover() {
         if (time == 0 && caughtMosquitos < mosquitos) {
-            gameOver();
+            gameover();
             return true;
         }
         return false;
@@ -142,8 +152,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    public void gameover() {
+        Dialog gameoverDialog = new Dialog(this, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        gameoverDialog.setContentView(R.layout.gameover);
+        gameoverDialog.show();
+        gameRunning = false;
+    }
+
     @Override
     public void onClick(View view) {
+        caughtMosquitos++;
+        points = points + 100;
+        refreshDisplay();
+        gameArea.removeView(view);
+    }
 
+    @Override
+    public void run() {
+        countdownTime();
     }
 }
