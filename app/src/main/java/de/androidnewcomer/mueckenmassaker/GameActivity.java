@@ -21,9 +21,10 @@ import java.util.Random;
 public class GameActivity extends AppCompatActivity implements View.OnClickListener, Runnable {
 
     private static final long MAX_AGE_MS = 2000;
-    public static final int DELAY_MILLIS = 1000;
-    public static final int MULTIPLICATION_FACTOR = 10;
-    public static final int TIME_SLICE = 600;
+    private static final int DELAY_MILLIS = 1000;
+    private static final int MULTIPLICATION_FACTOR = 10;
+    private static final int TIME_SLICE = 600;
+    private static final String INSECT = "insect";
 
     private boolean gameRunning;
     private int round;
@@ -176,8 +177,14 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //creates a image view for the mosquito
         ImageView spawnedMosquito = new ImageView(this);
-        //set the mosquito image for the image view
-        spawnedMosquito.setImageResource(R.drawable.muecke);
+
+        if (random.nextFloat() < 0.05) {
+            spawnedMosquito.setImageResource(R.drawable.insect);
+            spawnedMosquito.setTag(R.id.insect, INSECT);
+        } else {
+            //set the mosquito image for the image view
+            spawnedMosquito.setImageResource(R.drawable.muecke);
+        }
         //add a onClickListener for the mosquito
         spawnedMosquito.setOnClickListener(this);
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mosquitoWidth, mosquitoHeight);
@@ -229,10 +236,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     //the onclick listener for the catching a mosquito via touchscreen
     @Override
     public void onClick(View view) {
-        //increment the caughtMosquito variable
-        caughtMosquitos++;
-        //add 100 points to the points variable
-        points = points + 100;
+        //if the tag of the view equals 'INSECT'...
+        if (view.getTag(R.id.insect) == INSECT) {
+            //...then the player looses 1000 points
+            points -= 1000;
+        } else {
+            //increment the caughtMosquito variable
+            caughtMosquitos++;
+            //add 100 points to the points variable
+            points = points + 100;
+        }
+
         //refresh the display
         refreshDisplay();
         //remove the mosquito from the game area
