@@ -36,9 +36,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private float scale;
 
     private ViewGroup gameArea;
+    private MediaPlayer mediaPlayer;
     private Random random = new Random();
     private Handler handler = new Handler();
-    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,5 +279,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onDestroy() {
         mediaPlayer.release();
         super.onDestroy();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        handler.removeCallbacks(this);
     }
 }
