@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Dialog;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Gravity;
@@ -37,6 +38,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private ViewGroup gameArea;
     private Random random = new Random();
     private Handler handler = new Handler();
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +48,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         scale = getResources().getDisplayMetrics().density;
         //initialize/get the game area
         gameArea = (ViewGroup) findViewById(R.id.gameAreaFrameLayout);
+        //initialize mediaplayer object
+        mediaPlayer = MediaPlayer.create(this, R.raw.summen);
         //execute the startGame() method
         startGame();
+
     }
 
     //startGame() method
@@ -179,7 +184,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         ImageView spawnedMosquito = new ImageView(this);
 
         if (random.nextFloat() < 0.05) {
+            //set the scorpion image
             spawnedMosquito.setImageResource(R.drawable.insect);
+            //set the tag R.id.insect with the value 'INSECT'
             spawnedMosquito.setTag(R.id.insect, INSECT);
         } else {
             //set the mosquito image for the image view
@@ -197,6 +204,11 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         gameArea.addView(spawnedMosquito, params);
         //set a tag for the newly generated mosquito which contains a birth date for the mosquito to  later determine if the mosquito must be removed
         spawnedMosquito.setTag(R.id.birthdate, new Date());
+
+        //reset media player to second '0'
+        mediaPlayer.seekTo(0);
+        //start to play the 'summen' audio file
+        mediaPlayer.start();
     }
 
     //method to remove mosquitos
@@ -240,17 +252,19 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         if (view.getTag(R.id.insect) == INSECT) {
             //...then the player looses 1000 points
             points -= 1000;
+        //else...
         } else {
             //increment the caughtMosquito variable
             caughtMosquitos++;
             //add 100 points to the points variable
             points = points + 100;
         }
-
         //refresh the display
         refreshDisplay();
         //remove the mosquito from the game area
         gameArea.removeView(view);
+        //pause media player audio because mosquito has been clicked on
+        mediaPlayer.pause();
     }
 
     //thread run
@@ -258,5 +272,12 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     public void run() {
         //execute the countdownTime() method
         countdownTime();
+    }
+
+    //release media player when activity is closed
+    @Override
+    protected void onDestroy() {
+        mediaPlayer.release();
+        super.onDestroy();
     }
 }
