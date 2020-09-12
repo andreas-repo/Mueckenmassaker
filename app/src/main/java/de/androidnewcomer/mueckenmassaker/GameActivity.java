@@ -11,6 +11,8 @@ import android.os.Handler;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -247,9 +249,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     //the onclick listener for the catching a mosquito via touchscreen
     @Override
-    public void onClick(View view) {
+    public void onClick(View mosquito) {
         //if the tag of the view equals 'INSECT'...
-        if (view.getTag(R.id.insect) == INSECT) {
+        if (mosquito.getTag(R.id.insect) == INSECT) {
             //...then the player looses 1000 points
             points -= 1000;
         //else...
@@ -259,12 +261,21 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //add 100 points to the points variable
             points = points + 100;
         }
-        //refresh the display
-        refreshDisplay();
-        //remove the mosquito from the game area
-        gameArea.removeView(view);
         //pause media player audio because mosquito has been clicked on
         mediaPlayer.pause();
+
+        //create the hit animation...
+        Animation animationHit = AnimationUtils.loadAnimation(this, R.anim.hit);
+        //start the animation
+        mosquito.startAnimation(animationHit);
+        //...and set the MosquitoAnimationListener and then...
+        animationHit.setAnimationListener(new MosquitoAnimationListener(mosquito));
+        //...you remove the onClick Listner from the mosquito to avoid that the player gets points if he clicks on the spot where the hit mosquito was.
+        mosquito.setOnClickListener(null);
+
+        //refresh the display
+        refreshDisplay();
+
     }
 
     //thread run
@@ -285,5 +296,37 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(this);
+    }
+
+    //this class is for the mosquito fade out animation
+    private class MosquitoAnimationListener implements Animation.AnimationListener {
+        //reference needed to play the animation on the correct mosquito object
+        private View mosquito;
+
+        //this class creator makes sure a view object (the mosquito) is added as the reference
+        public MosquitoAnimationListener(View mosquito) {
+            this.mosquito = mosquito;
+        }
+
+        @Override
+        public void onAnimationStart(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+            //the handler + runnable are needed to avoid problems which can result in the unwanted crash of the application
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    gameArea.removeView(mosquito);
+                }
+            });
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+
+        }
     }
 }
