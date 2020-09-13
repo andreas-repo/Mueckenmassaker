@@ -4,7 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Dialog;
-import android.graphics.drawable.Drawable;
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +16,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.Date;
@@ -41,6 +41,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private MediaPlayer mediaPlayer;
     private Random random = new Random();
     private Handler handler = new Handler();
+    private AudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         gameArea = (ViewGroup) findViewById(R.id.gameAreaFrameLayout);
         //initialize mediaplayer object
         mediaPlayer = MediaPlayer.create(this, R.raw.summen);
+
+        //TODO find a way to resolve the volume problem => change root audio volume
+
+
         //execute the startGame() method
         startGame();
 
@@ -204,8 +209,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //add the mosquito image view to the game area
         gameArea.addView(spawnedMosquito, params);
+
         //set a tag for the newly generated mosquito which contains a birth date for the mosquito to  later determine if the mosquito must be removed
         spawnedMosquito.setTag(R.id.birthdate, new Date());
+
+        //TODO find the problem why the fade in at the beginning of the animation wont work properly
+        //Animation animationCreation = AnimationUtils.loadAnimation(this, R.anim.mosquito_creation);
+        //animationCreation.setAnimationListener(new MosquitoCreationAnimationListener(spawnedMosquito, params));
+        //spawnedMosquito.startAnimation(animationCreation);
+
+
+
 
         //reset media player to second '0'
         mediaPlayer.seekTo(0);
@@ -270,7 +284,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         mosquito.startAnimation(animationHit);
         //...and set the MosquitoAnimationListener and then...
         animationHit.setAnimationListener(new MosquitoAnimationListener(mosquito));
-        //...you remove the onClick Listner from the mosquito to avoid that the player gets points if he clicks on the spot where the hit mosquito was.
+        //...you remove the onClick Listener from the mosquito to avoid that the player gets points if he clicks on the spot where the hit mosquito was.
         mosquito.setOnClickListener(null);
 
         //refresh the display
@@ -329,4 +343,38 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         }
     }
+
+    private class MosquitoCreationAnimationListener implements Animation.AnimationListener {
+
+        private View mosquito;
+        private FrameLayout.LayoutParams params;
+
+
+        public MosquitoCreationAnimationListener(View mosquito, FrameLayout.LayoutParams params) {
+            this.mosquito = mosquito;
+            this.params = params;
+        }
+
+        @Override
+        public void onAnimationStart(Animation animation) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    gameArea.addView(mosquito, params);
+                }
+            });
+        }
+
+        @Override
+        public void onAnimationEnd(Animation animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animation animation) {
+
+        }
+    }
+
+
 }
