@@ -42,6 +42,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private Random random = new Random();
     private Handler handler = new Handler();
     private AudioManager audioManager;
+    Animation animationCreation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +56,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayer = MediaPlayer.create(this, R.raw.summen);
 
         //TODO find a way to resolve the volume problem => change root audio volume
-
 
         //execute the startGame() method
         startGame();
@@ -207,16 +207,23 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         params.topMargin = top;
         params.gravity = Gravity.TOP + Gravity.LEFT;
 
+        //Fade_In animation
+        animationCreation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        animationCreation.setAnimationListener(new MosquitoCreationAnimationListener());
+        spawnedMosquito.startAnimation(animationCreation);
+
         //add the mosquito image view to the game area
         gameArea.addView(spawnedMosquito, params);
+
 
         //set a tag for the newly generated mosquito which contains a birth date for the mosquito to  later determine if the mosquito must be removed
         spawnedMosquito.setTag(R.id.birthdate, new Date());
 
         //TODO find the problem why the fade in at the beginning of the animation wont work properly
         //Animation animationCreation = AnimationUtils.loadAnimation(this, R.anim.mosquito_creation);
-        //animationCreation.setAnimationListener(new MosquitoCreationAnimationListener(spawnedMosquito, params));
-        //spawnedMosquito.startAnimation(animationCreation);
+
+
+        spawnedMosquito.startAnimation(animationCreation);
 
 
 
@@ -346,21 +353,13 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private class MosquitoCreationAnimationListener implements Animation.AnimationListener {
 
-        private View mosquito;
-        private FrameLayout.LayoutParams params;
-
-
-        public MosquitoCreationAnimationListener(View mosquito, FrameLayout.LayoutParams params) {
-            this.mosquito = mosquito;
-            this.params = params;
-        }
 
         @Override
         public void onAnimationStart(Animation animation) {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    gameArea.addView(mosquito, params);
+
                 }
             });
         }
