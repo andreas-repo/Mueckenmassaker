@@ -340,6 +340,9 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             handler.post(new Runnable() {
                 @Override
                 public void run() {
+                    //cancel the spawn 'fade in' animation
+                    animationCreation.cancel();
+                    //remove the mosquito view from game area
                     gameArea.removeView(mosquito);
                 }
             });

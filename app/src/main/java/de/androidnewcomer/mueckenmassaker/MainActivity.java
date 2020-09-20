@@ -45,14 +45,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         //get the root view element (background of the main activity)
         View view = findViewById(R.id.root);
-        //start the animation on the activity
+        //start the fide in animation when the user accesses the activity
         view.startAnimation(fadeInAnimation);
-        handler.postDelayed(wiggleRunnable, 1000);
+        //wait 2000ms and then play the wiggle animation
+        handler.postDelayed(wiggleRunnable, 2000);
     }
 
     private class WiggleButton implements Runnable {
         @Override
         public void run() {
+            //start the wiggle button animation
             startButton.startAnimation(wiggleAnimation);
         }
     }
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         super.onPause();
+        //remove the callback when the user is on a different activity
         handler.removeCallbacks(wiggleRunnable);
     }
 }
