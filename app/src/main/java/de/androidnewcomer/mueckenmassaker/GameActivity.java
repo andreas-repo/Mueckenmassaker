@@ -356,7 +356,6 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     private class MosquitoCreationAnimationListener implements Animation.AnimationListener {
 
-
         @Override
         public void onAnimationStart(Animation animation) {
             handler.post(new Runnable() {
