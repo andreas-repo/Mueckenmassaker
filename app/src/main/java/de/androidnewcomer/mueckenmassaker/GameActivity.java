@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -214,7 +213,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             spawnedMosquito.setTag(R.id.insect, INSECT);
         } else {
             //set the mosquito image for the image view
-            spawnedMosquito.setImageResource(R.drawable.muecke);
+            spawnedMosquito.setImageResource(R.drawable.muecke_Nord);
         }
         //add a onClickListener for the mosquito
         spawnedMosquito.setOnClickListener(this);

@@ -42,7 +42,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/headerText1"
-        app:srcCompat="@drawable/muecke" />
+        app:srcCompat="@drawable/muecke_Nord" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
