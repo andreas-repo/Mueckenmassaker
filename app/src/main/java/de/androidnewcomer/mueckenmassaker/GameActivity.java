@@ -28,6 +28,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
     private static final int MULTIPLICATION_FACTOR = 10;
     private static final int TIME_SLICE = 600;
     private static final String INSECT = "insect";
+    private static final int movementSpeedMultiplier = 2;
 
     private boolean gameRunning;
     private int round;
@@ -136,6 +137,10 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         }
         //execute removeMosquitos() method
         removeMosquitos();
+
+        //call mosquitoMovement() method
+        mosquitoMovement();
+
         //execute refreshDisplay() method
         refreshDisplay();
         //checks if the game is over...
@@ -180,6 +185,18 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //gets the width of the game area
         int width = gameArea.getWidth();
 
+        //set the velocity of the mosquitos vectors X & Y randomly
+        int vectorX;
+        int vectorY;
+        do {
+            vectorX = random.nextInt(3)-1;
+            vectorY = random.nextInt(3)-1;
+        } while (vectorX == 0 || vectorY == 0);
+
+        //now the vectors have to be multiplicated with the scale of the screen
+        vectorX = (int) Math.round(scale * vectorX);
+        vectorY = (int) Math.round(scale * vectorY);
+
         int mosquitoHeight = Math.round(scale * 50);
         int mosquitoWidth = Math.round(scale * 42);
 
@@ -215,23 +232,42 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
         //add the mosquito image view to the game area
         gameArea.addView(spawnedMosquito, params);
 
-
         //set a tag for the newly generated mosquito which contains a birth date for the mosquito to  later determine if the mosquito must be removed
         spawnedMosquito.setTag(R.id.birthdate, new Date());
+        //add vectorX and vectorY as a tag
+        spawnedMosquito.setTag(R.id.vectorX, vectorX);
+        spawnedMosquito.setTag(R.id.vectorY, vectorY);
 
-        //TODO find the problem why the fade in at the beginning of the animation wont work properly
         //Animation animationCreation = AnimationUtils.loadAnimation(this, R.anim.mosquito_creation);
-
-
         spawnedMosquito.startAnimation(animationCreation);
-
-
-
 
         //reset media player to second '0'
         mediaPlayer.seekTo(0);
         //start to play the 'summen' audio file
         mediaPlayer.start();
+    }
+
+    //method for the movement of the mosquito's
+    private void mosquitoMovement() {
+        int number = 0;
+        //while to number is lower than the amount of child's on the game area (all mosquito's')
+        while (number < gameArea.getChildCount()) {
+            //get the layout view of the mosquito with the index of the "number" variable....
+            ImageView mosquito = (ImageView) gameArea.getChildAt(number);
+            //get vector of the X axis via the tag....
+            int vectorX = (Integer) mosquito.getTag(R.id.vectorX);
+            //get the vector of the Y axis via the tag...
+            int vectorY = (Integer) mosquito.getTag(R.id.vectorY);
+            //get the parameters of the mosquito as a variable
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) mosquito.getLayoutParams();
+            //add the X vector to the left margin...
+            params.leftMargin += vectorX * (round * movementSpeedMultiplier);
+            //add the Y vector to the top margin...
+            params.topMargin += vectorY * (round * movementSpeedMultiplier);
+            //add the changed parameters to the mosquito
+            mosquito.setLayoutParams(params);
+            number++;
+        }
     }
 
     //method to remove mosquitos
