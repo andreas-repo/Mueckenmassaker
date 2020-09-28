@@ -179,10 +179,17 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
     //method to spawn a new mosquito
     private void spawnOneMosquito() {
+        //creates a image view for the mosquito
+        ImageView spawnedMosquito = new ImageView(this);
+        //add a onClickListener for the mosquito
+        spawnedMosquito.setOnClickListener(this);
         //gets the height of the game area
         int height = gameArea.getHeight();
         //gets the width of the game area
         int width = gameArea.getWidth();
+
+        int mosquitoHeight = Math.round(scale * 50);
+        int mosquitoWidth = Math.round(scale * 42);
 
         //set the velocity of the mosquitos vectors X & Y randomly
         int vectorX;
@@ -192,31 +199,34 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             vectorY = random.nextInt(3)-1;
         } while (vectorX == 0 || vectorY == 0);
 
-        //now the vectors have to be multiplicated with the scale of the screen
-        vectorX = (int) Math.round(scale * vectorX);
-        vectorY = (int) Math.round(scale * vectorY);
-
-        int mosquitoHeight = Math.round(scale * 50);
-        int mosquitoWidth = Math.round(scale * 42);
-
-        //creates a random value to place the mosquito inside the game area
-        int left = random.nextInt(width - mosquitoWidth);
-        int top = random.nextInt(height - mosquitoHeight);
-
-        //creates a image view for the mosquito
-        ImageView spawnedMosquito = new ImageView(this);
-
+        //add vectorX and vectorY as a tag
+        spawnedMosquito.setTag(R.id.vectorX, vectorX);
+        spawnedMosquito.setTag(R.id.vectorY, vectorY);
         if (random.nextFloat() < 0.05) {
             //set the scorpion image
             spawnedMosquito.setImageResource(R.drawable.insect);
             //set the tag R.id.insect with the value 'INSECT'
             spawnedMosquito.setTag(R.id.insect, INSECT);
         } else {
-            //set the mosquito image for the image view
-            spawnedMosquito.setImageResource(R.drawable.muecke_Nord);
+
+            //execute setMosquitoMovement() method which set the correct image for the mosquito movement
+            setMosquitoImage(spawnedMosquito, vectorX, vectorY);
         }
-        //add a onClickListener for the mosquito
-        spawnedMosquito.setOnClickListener(this);
+
+        //now the vectors have to be multiplicated with the scale of the screen
+        vectorX = (int) Math.round(scale * vectorX);
+        vectorY = (int) Math.round(scale * vectorY);
+
+
+
+        //creates a random value to place the mosquito inside the game area
+        int left = random.nextInt(width - mosquitoWidth);
+        int top = random.nextInt(height - mosquitoHeight);
+
+
+
+
+
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(mosquitoWidth, mosquitoHeight);
         //place the mosquito via the randomly generated values
         params.leftMargin = left;
@@ -233,9 +243,7 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
 
         //set a tag for the newly generated mosquito which contains a birth date for the mosquito to  later determine if the mosquito must be removed
         spawnedMosquito.setTag(R.id.birthdate, new Date());
-        //add vectorX and vectorY as a tag
-        spawnedMosquito.setTag(R.id.vectorX, vectorX);
-        spawnedMosquito.setTag(R.id.vectorY, vectorY);
+
 
         //Animation animationCreation = AnimationUtils.loadAnimation(this, R.anim.mosquito_creation);
         spawnedMosquito.startAnimation(animationCreation);
@@ -266,6 +274,33 @@ public class GameActivity extends AppCompatActivity implements View.OnClickListe
             //add the changed parameters to the mosquito
             mosquito.setLayoutParams(params);
             number++;
+        }
+    }
+
+    private void setMosquitoImage(ImageView mosquito, int vectorX, int vectorY) {
+        if (vectorX == -1 && vectorY == -1) {
+            mosquito.setImageResource(R.drawable.muecke_nw);
+        }
+        if (vectorX == -1 && vectorY == 0) {
+            mosquito.setImageResource(R.drawable.muecke_w);
+        }
+        if (vectorX == -1 && vectorY == +1) {
+            mosquito.setImageResource(R.drawable.muecke_sw);
+        }
+        if (vectorX == 0 && vectorY == -1) {
+            mosquito.setImageResource(R.drawable.muecke_n);
+        }
+        if (vectorX == 0 && vectorY == +1) {
+            mosquito.setImageResource(R.drawable.muecke_s);
+        }
+        if (vectorX == +1 && vectorY == -1) {
+            mosquito.setImageResource(R.drawable.muecke_no);
+        }
+        if (vectorX         == +1 && vectorY == 0) {
+            mosquito.setImageResource(R.drawable.muecke_o);
+        }
+        if (vectorX == +1 && vectorY == +1) {
+            mosquito.setImageResource(R.drawable.muecke_so);
         }
     }
 
